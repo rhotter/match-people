@@ -31,4 +31,4 @@ print_mincost_flow(mincost_flow)
 
 # print(nx.cost_of_flow(G, mincost_flow))
 
-plot_graph(data, G)
+# plot_graph(data, G)

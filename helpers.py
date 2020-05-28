@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
+import random
+
+max_noise = 1e-5
 
 def in_node(name):
   return 'in-' + name
@@ -8,7 +11,7 @@ def in_node(name):
 def out_node(name):
   return 'out-' + name
 
-def _get_low_priority_edges(data, weights):
+def _get_low_priority_edges(data, weights, random_noise=True):
   low_priority_weight = -weights[-1]
   low_priority_edges = []
 
@@ -18,16 +21,22 @@ def _get_low_priority_edges(data, weights):
 
     # add people who aren't yourself and who haven't already been selected
     for out_name in people_names.difference(set(person["out"])).difference({in_name}):
-      low_priority_edges.append((in_node(in_name), out_node(out_name), {'capacity': 1, 'weight': low_priority_weight}))
+      weight = low_priority_weight
+      if random_noise:
+        weight += random.uniform(-max_noise, +max_noise) # perturb weights slightly to get a unique solution
+      low_priority_edges.append((in_node(in_name), out_node(out_name), {'capacity': 1, 'weight': weight}))
   return low_priority_edges
 
-def _get_cross_edges(data, weights):
+def _get_cross_edges(data, weights, random_noise=True):
   # TODO add custom weights
   cross_edges = []
   for person in data:
     for i, out_person_name in enumerate(person['out']):
-      cross_edges.append((in_node(person['name']), out_node(out_person_name), {'capacity': 1, 'weight': -weights[i]}))
-  cross_edges.extend(_get_low_priority_edges(data, weights))
+      weight = -weights[i]
+      if random_noise:
+        weight += random.uniform(-max_noise, +max_noise) # perturb weights slightly to get a unique solution
+      cross_edges.append((in_node(person['name']), out_node(out_person_name), {'capacity': 1, 'weight': weight}))
+  cross_edges.extend(_get_low_priority_edges(data, weights, random_noise=True))
   return cross_edges
 
 def _get_source_edges(data, group_size):
@@ -39,7 +48,7 @@ def _get_sink_edges(data, group_size):
 def get_edges(data, weights, group_size):
   source_edges = _get_source_edges(data, group_size)
   sink_edges = _get_sink_edges(data, group_size)
-  cross_edges = _get_cross_edges(data, weights)
+  cross_edges = _get_cross_edges(data, weights, random_noise=True)
   edges = source_edges + sink_edges + cross_edges
   return edges
 
