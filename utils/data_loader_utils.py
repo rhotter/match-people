@@ -10,7 +10,7 @@ import re
 # If modifying these scopes, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
-def _get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range):
+def get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range):
 	creds = None
 	# The file token.pickle stores the user's access and refresh tokens, and is
 	# created automatically when the authorization flow completes for the first
@@ -45,7 +45,7 @@ def _extract_person(topic_name):
 	person = person[0][1:-1]
 	return person
 
-def _process_raw_spreadsheet_data(values):
+def process_raw_spreadsheet_data(values):
 	data = []
 	for row in values:
 		data.append({

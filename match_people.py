@@ -1,40 +1,20 @@
+from .utils import get_raw_spreadsheet_data, process_raw_spreadsheet_data, get_edges
 import networkx as nx
-import matplotlib.pyplot as plt
-from utils import *
 
-G = nx.DiGraph() # directed graph
-
-# data = [
-#   {'name': 'Raffi',
-#   'out': ['Santi', 'Erin'] # in priority ordering
-#   },
-#   {'name': 'Santi',
-#   'out': ['Raffi', 'Marley'],
-#   },
-#   {'name': 'Marley',
-#   'out': ['Santi', 'Erin']
-#   },
-#   {'name': 'Erin',
-#   'out': ['Raffi', 'Marley']
-#   }]
-# optimal grouping is (Marley, Santi, Erin), (Raffi, Erin, Santi), (Erin, Raffi, Marley), (Santi, Raffi, Marley)
-
-spreadsheet_id = '1j7G_PzCfDEn4PDiDlR0hyp180baKbyaThdOxXz9O8HU'
-spreadsheet_range = 'Learning Experiment!A2:E'
-
-data = get_data(spreadsheet_id, spreadsheet_range)
-# print(data)
-
-weights = [1, 2, 3, 4, 8] # TODO use [1,2,3,4,8] weights instead
-group_size=3
-
-edges = get_edges(data, weights, group_size)
-G.add_edges_from(edges)
-# print(edges)
-mincost_flow = nx.max_flow_min_cost(G, 'source', 'sink')
-# print(mincost_flow)
-print_mincost_flow(mincost_flow)
-
-# # print(nx.cost_of_flow(G, mincost_flow))
-
-# plot_graph(data, G)
+class PeopleMatcher():
+  def __init__(self, spreadsheet_id, spreadsheet_range, weights, low_priority_weight,
+  group_size, random_noise=False):
+    self.data = self._get_data_from_spreadsheet(spreadsheet_id, spreadsheet_range)
+    self.weights = weights
+    self.low_priority_weight = low_priority_weight
+    self.group_size = group_size
+    self.G = nx.DiGraph()
+    self.random_noise = random_noise
+  
+  def _get_data_from_spreadsheet(self, spreadsheet_id, spreadsheet_range):
+    values = get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range)
+    data = process_raw_spreadsheet_data(values)
+    return data
+  
+  def optimize(self):
+    edges = get_edges(self)
