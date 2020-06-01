@@ -33,7 +33,8 @@ G.add_edges_from(edges)
 # print(edges)
 mincost_flow = nx.max_flow_min_cost(G, 'source', 'sink')
 # print(mincost_flow)
-print_mincost_flow(mincost_flow)
+# print_mincost_flow(mincost_flow)
+print_out(mincost_flow)
 
 # # print(nx.cost_of_flow(G, mincost_flow))
 

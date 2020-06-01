@@ -55,3 +55,21 @@ def print_mincost_flow(mincost_flow):
       out_names = ' and '.join(out_names)
       print(f"{in_name} is paired with {out_names}")
   print()
+
+def print_out(mincost_flow):
+  print()
+  presenters = {}
+  for key, value in mincost_flow.items():
+    if 'in-' in key[:len('in-')+1]:
+      in_name = key[len('in-'):]
+      for name, is_chosen in value.items():
+        if is_chosen:
+          person_chosen = name[len('out-'):]
+          if person_chosen in presenters.keys():
+            presenters[person_chosen].append(in_name)
+          else:
+            presenters[person_chosen] = [in_name]
+  for presenter, audience in presenters.items():
+    audience_string = ' and '.join(audience)
+    print(f"{presenter} is presenting to {audience_string}")
+  print()
