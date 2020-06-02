@@ -5,36 +5,39 @@ from .general_utils import in_node, out_node
 
 max_noise = 1e-5
 
-def _get_plot_positions(data):
+def _get_plot_positions(graph):
   pos = {}
-  pos['source'] = (1, len(data)//2)
-  for i, person in enumerate(data):
-    pos[in_node(person['name'])] = (2, i)
-    pos[out_node(person['name'])] = (3, i)
-  pos['sink'] = (4, len(data)//2)
+  middle = len(list(graph.edges('source')))//2
+  pos['source'] = (1, middle)
+
+  for i, edge in enumerate(graph.edges('source')):
+    audience_name = edge[1]
+    pos[audience_name] = (2, i)
+  
+  for i, edge in enumerate(graph.in_edges('sink')):
+    presenter_name = edge[0]
+    pos[presenter_name] = (3, i)
+  pos['sink'] = (4, middle)
   return pos
 
-def _get_plot_labels(data):
-  labels = {
-    'source': 's',
-    'sink': 't',
-  }
-  for person in data:
-    name = person["name"]
-    labels[in_node(name)] = name[0]
-    labels[out_node(name)] = name[0]
+def _get_plot_labels(graph):
+  labels = {}
+  for node in graph.nodes():
+    labels[node] = node[:2]  # taking the first 2 characters
   return labels
 
 def _get_edge_colors(graph):
-  edge_colors = np.array([-edge[1] for edge in nx.get_edge_attributes(graph,'weight').items()])
+  edge_colors = np.array([edge[1] for edge in nx.get_edge_attributes(graph,'weight').items()])
   low_priority_weight = np.unique(edge_colors)[1]
   edge_colors[(low_priority_weight + 1e-4 > edge_colors) & (edge_colors > low_priority_weight - 1e-4)] = 0 # TODO pass weights as function arg instead of this shananigans
 
   return edge_colors
 
-def plot_graph(data, graph):
-  pos = _get_plot_positions(data)
-  labels = _get_plot_labels(data)
+def plot_graph(graph):
+  graph.edges('source')
+
+  pos = _get_plot_positions(graph)
+  labels = _get_plot_labels(graph)
   edge_colors = _get_edge_colors(graph)
   
   nx.draw_networkx_nodes(graph, pos=pos, node_color='#ffe28a')
