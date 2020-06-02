@@ -20,7 +20,8 @@ G = nx.DiGraph() # directed graph
 # optimal grouping is (Marley, Santi, Erin), (Raffi, Erin, Santi), (Erin, Raffi, Marley), (Santi, Raffi, Marley)
 
 spreadsheet_id = '1j7G_PzCfDEn4PDiDlR0hyp180baKbyaThdOxXz9O8HU'
-spreadsheet_range = 'Learning Experiment!A2:E'
+# spreadsheet_range = 'Learning Experiment!A2:E'
+spreadsheet_range = 'test2!A2:E' # 10 people
 
 data = get_data(spreadsheet_id, spreadsheet_range)
 # print(data)
@@ -36,6 +37,6 @@ mincost_flow = nx.max_flow_min_cost(G, 'source', 'sink')
 # print_mincost_flow(mincost_flow)
 print_out(mincost_flow)
 
-# # print(nx.cost_of_flow(G, mincost_flow))
+print(nx.cost_of_flow(G, mincost_flow))
 
 # plot_graph(data, G)
