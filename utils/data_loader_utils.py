@@ -4,6 +4,7 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import random
 
 import re
 
@@ -57,4 +58,19 @@ def _process_raw_spreadsheet_data(values):
 def get_data(spreadsheet_id, spreadsheet_range):
 	values = _get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range)
 	data = _process_raw_spreadsheet_data(values)
+	return data
+
+# def get_generated_data(n_people, n_preferences):
+# 	fake_names = {'Avery', 'Riley', 'Jordan', 'Angel', 'Parker', 'Sawyer', 'Peyton', 'Quinn', 'Blake', 'Hayden', 'Taylor', 'Alexis', 'Rowan', 'Charlie', 'Emerson', 'Finley', 'River', 'Ariel', 'Emery', 'Morgan', 'Elliot', 'London', 'Eden', 'Elliott', 'Karter', 'Dakota', 'Reese', 'Zion', 'Remington', 'Payton', 'Amari', 'Phoenix', 'Kendall', 'Harley', 'Rylan', 'Marley', 'Dallas', 'Skyler', 'Spencer', 'Sage', 'Kyrie', 'Lyric', 'Ellis', 'Rory', 'Remi', 'Justice', 'Ali', 'Haven', 'Tatum', 'Kamryn'}
+# 	data = []
+# 	for name in fake_names:
+# 		other_people = fake_names.difference(set({name}))
+# 		data.append({'name': name, 'out': random.sample(other_people, n_preferences)})
+# 	return data
+
+def get_generated_data(n_people, n_preferences):
+	data = []
+	for i in range(n_people):
+		other_people = set(range(n_people)).difference(set({i}))
+		data.append({'name': i, 'out': random.sample(other_people, n_preferences)})
 	return data
