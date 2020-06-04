@@ -74,3 +74,18 @@ def get_generated_data(n_people, n_preferences):
 		other_people = set(range(n_people)).difference(set({i}))
 		data.append({'name': i, 'out': random.sample(other_people, n_preferences)})
 	return data
+
+# data = [
+#   {'name': 'Raffi',
+#   'out': ['Santi', 'Erin'] # in priority ordering
+#   },
+#   {'name': 'Santi',
+#   'out': ['Raffi', 'Marley'],
+#   },
+#   {'name': 'Marley',
+#   'out': ['Santi', 'Erin']
+#   },
+#   {'name': 'Erin',
+#   'out': ['Raffi', 'Marley']
+#   }]
+# optimal grouping is (Marley, Santi, Erin), (Raffi, Erin, Santi), (Erin, Raffi, Marley), (Santi, Raffi, Marley)
