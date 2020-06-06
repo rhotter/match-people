@@ -42,22 +42,23 @@ def _get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range):
 	return values
 
 def _extract_person(topic_name):
-	person = re.findall(r'\(.*\)', topic_name)
-	person = person[0][1:-1]
+	person = re.findall(r'\(([^()]*)\)$', topic_name)
+	person = person[0]
 	return person
 
-def _process_raw_spreadsheet_data(values):
+def _process_raw_spreadsheet_data(values, cols):
 	data = []
-	for row in values:
+	for row in values[1:]:
+		data_cols_vals = [row[i] for i in cols]
 		data.append({
 			'name': row[0],
-			'out': [_extract_person(topic_name) for topic_name in row[1:]]
+			'out': [_extract_person(topic_name) for topic_name in data_cols_vals]
 		})
 	return data
 
-def get_data(spreadsheet_id, spreadsheet_range):
+def get_data(spreadsheet_id, spreadsheet_range, cols=[1,2,3,4]):
 	values = _get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range)
-	data = _process_raw_spreadsheet_data(values)
+	data = _process_raw_spreadsheet_data(values, cols)
 	return data
 
 # def get_generated_data(n_people, n_preferences):
