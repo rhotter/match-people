@@ -49,13 +49,23 @@ def _extract_person(topic_name):
 		person = ''
 	return person
 
+def _get_out_people(row, cols, people_names):
+	data_cols_vals = [row[i] for i in cols]
+	out = []
+	for topic_name in data_cols_vals:
+		person_name = _extract_person(topic_name)
+		if person_name in people_names: # if a valid person
+			out.append(person_name)
+	return out
+
 def _process_raw_spreadsheet_data(values, cols):
 	data = []
+	people_names = {row[0] for row in values[1:]}
 	for row in values[1:]:
-		data_cols_vals = [row[i] for i in cols]
+		out = _get_out_people(row, cols, people_names)
 		data.append({
 			'name': row[0],
-			'out': [_extract_person(topic_name) for topic_name in data_cols_vals]
+			'out': out
 		})
 	return data
 

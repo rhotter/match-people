@@ -2,7 +2,9 @@ from utils import get_data, get_generated_data
 from solver import CollaborationSolver
 
 spreadsheet_id = '1wqk7ZYDw_R2VFOsZCWIvK0CiID-2OBzKyDUGPzaJfO0'
-spreadsheet_range = 'Learning Experiment! Episode 2' # 10 people
+# spreadsheet_range = 'Learning Experiment! Episode 2' # 10 people
+spreadsheet_range = 'w/o Wilfred'
+
 
 data = get_data(spreadsheet_id, spreadsheet_range, cols=[5,6,7])
 # data = get_generated_data(n_people=50, n_preferences=4)

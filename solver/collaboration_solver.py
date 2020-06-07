@@ -42,7 +42,7 @@ class CollaborationSolver:
   def _add_constraints(self):
     # each person goes to one topic
     for i in range(self.n_people):
-      self.problem += lpSum(self.x[i,j] for j in set(range(self.n_people))) == 1
+      self.problem += lpSum(self.x[i,j] for j in range(self.n_people)) == 1
 
     # if your topic is picked, you have to be there
     for i in range(self.n_people):
@@ -54,20 +54,31 @@ class CollaborationSolver:
     
     # there are exactly n_people // 2 presentations
     self.problem += lpSum(self.x[i,i] for i in range(self.n_people)) == self.n_people // 2
-    
+  
+  def _get_priority_edges_for_listener(self, listener_idx, out_names):
+    priority_edge_costs = {}
+    for priority, presenter_name in enumerate(out_names):
+      presenter_idx = self.person_to_index[presenter_name]
+      priority_edge_costs[listener_idx, presenter_idx] = self.weights[priority]
+    return priority_edge_costs
+
+  def _get_low_priority_edges_for_listener(self, listener_idx, out_names):
+    low_priority_edge_costs = {}
+    listener_out_indeces = {self.person_to_index[person_name] for person_name in out_names}
+    for presenter_idx in self._people_minus(listener_out_indeces):
+      if presenter_idx == listener_idx:
+        low_priority_edge_costs[listener_idx, presenter_idx] = self.dont_want_my_topic_weight
+      else:
+        low_priority_edge_costs[listener_idx, presenter_idx] = self.dont_want_someone_else_topic_weight
+    return low_priority_edge_costs
+
   def _get_edge_costs(self, data):
     edge_costs = {}
     for listener in data:
       listener_idx = self.person_to_index[listener['name']]
-      for priority, presenter_name in enumerate(listener['out']):
-        presenter_idx = self.person_to_index[presenter_name]
-        edge_costs[listener_idx, presenter_idx] = self.weights[priority]
-      listener_out_indeces = {self.person_to_index[person_name] for person_name in listener['out']}
-      for presenter_idx in self._people_minus(listener_out_indeces):
-        if presenter_idx == listener_idx:
-          edge_costs[listener_idx, presenter_idx] = self.dont_want_my_topic_weight
-        else:
-          edge_costs[listener_idx, presenter_idx] = self.dont_want_someone_else_topic_weight
+      priority_edge_costs = self._get_priority_edges_for_listener(listener_idx, listener['out'])
+      low_priority_edge_costs = self._get_low_priority_edges_for_listener(listener_idx, listener['out'])
+      edge_costs = {**edge_costs, **priority_edge_costs, **low_priority_edge_costs}
     return edge_costs
 
   def _add_objective(self, data):

@@ -15,10 +15,11 @@ We solve a linear program with 3 constraints:
 """
 
 class TeachingSolver():
-  def __init__(self, data, n_blocks, weights, exclude_presenters):
+  def __init__(self, data, n_blocks, weights, low_priority_weight, exclude_presenters=[]):
     self.n_people = len(data)
     self.n_blocks = n_blocks
     self.weights = weights
+    self.low_priority_weight = low_priority_weight
     self.exclude_presenters = set(exclude_presenters)
     self.index_to_person = {i: data[i]['name'] for i in range(self.n_people)}
     self.person_to_index = {data[i]['name']: i for i in range(self.n_people)}
@@ -57,19 +58,29 @@ class TeachingSolver():
     # each block has exactly n/2 presentations
     for k in range(self.n_blocks):
       self.problem += lpSum(self.x[i,j,k] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces)) == ceil(self.n_people/2)
-    
+  
+  def _get_priority_edges_for_listener(self, listener_idx, out_names):
+    priority_edge_costs = {}
+    for priority, presenter_name in enumerate(out_names):
+      if presenter_name not in self.exclude_presenters:
+        presenter_idx = self.person_to_index[presenter_name]
+        priority_edge_costs[listener_idx, presenter_idx] = self.weights[priority]
+    return priority_edge_costs
+
+  def _get_low_priority_edges_for_listener(self, listener_idx, out_names):
+    low_priority_edge_costs = {}
+    listener_out_indeces = {self.person_to_index[person_name] for person_name in out_names}
+    for presenter_idx in self._people_minus(listener_out_indeces, {listener_idx}):
+      low_priority_edge_costs[listener_idx, presenter_idx] = self.low_priority_weight
+    return low_priority_edge_costs
+
   def _get_edge_costs(self, data):
     edge_costs = {}
-    low_priority_weight = self.weights[-1]
     for listener in data:
       listener_idx = self.person_to_index[listener['name']]
-      for priority, presenter_name in enumerate(listener['out']):
-        if presenter_name not in self.exclude_presenters:
-          presenter_idx = self.person_to_index[presenter_name]
-          edge_costs[listener_idx, presenter_idx] = self.weights[priority]
-      listener_out_indeces = {self.person_to_index[person_name] for person_name in listener['out']}
-      for presenter_idx in self._people_minus(listener_out_indeces, {listener_idx}):
-        edge_costs[listener_idx, presenter_idx] = low_priority_weight
+      priority_edge_costs = self._get_priority_edges_for_listener(listener_idx, listener['out'])
+      low_priority_edge_costs = self._get_low_priority_edges_for_listener(listener_idx, listener['out'])
+      edge_costs = {**edge_costs, **priority_edge_costs, **low_priority_edge_costs}
     return edge_costs
 
   def _add_objective(self, data):
