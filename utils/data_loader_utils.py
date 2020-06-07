@@ -43,7 +43,10 @@ def _get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range):
 
 def _extract_person(topic_name):
 	person = re.findall(r'\(([^()]*)\)$', topic_name)
-	person = person[0]
+	if person != []:
+		person = person[0]
+	else:
+		person = ''
 	return person
 
 def _process_raw_spreadsheet_data(values, cols):
