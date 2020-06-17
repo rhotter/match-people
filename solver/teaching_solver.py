@@ -64,7 +64,7 @@ class TeachingSolver():
     for priority, presenter_name in enumerate(out_names):
       if presenter_name not in self.exclude_presenters:
         presenter_idx = self.person_to_index[presenter_name]
-        priority_edge_costs[listener_idx, presenter_idx] = self.weights[priority]*1000 + 
+        priority_edge_costs[listener_idx, presenter_idx] = self.weights[priority]
     return priority_edge_costs
 
   def _get_low_priority_edges_for_listener(self, listener_idx, out_names):
