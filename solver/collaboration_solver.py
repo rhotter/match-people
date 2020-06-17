@@ -107,7 +107,7 @@ class CollaborationSolver:
       preference = self.weights.index(edge_weight) + 1
     return preference
 
-  def print_results(self):
+  def print_results(self, print_preferences=True):
     if not self.problem_solved:
       raise Exception('Solve the problem first')
 
@@ -119,9 +119,11 @@ class CollaborationSolver:
         presenter_name = self.index_to_person[j]
         preference = self._get_preference(i,j)
         if presenter_name in talks.keys():
-          talks[presenter_name] += ", " + listener_name + " (" + str(preference) + ")"
+          talks[presenter_name] += ", " + listener_name
         else:
-          talks[presenter_name] = listener_name + " (" + str(preference) + ")"
+          talks[presenter_name] = listener_name
+        if print_preferences:
+          talks[presenter_name] += " (" + str(preference) + ")"
     
     for presenter, listeners in talks.items():
       print(f"{presenter}: {listeners}")
