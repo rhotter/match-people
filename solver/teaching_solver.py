@@ -1,5 +1,8 @@
 from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger
 from math import ceil
+import csv
+from tabulate import tabulate
+
 """
 We solve a linear program with 3 constraints:
 (1) Each person listens once:
@@ -110,7 +113,7 @@ class TeachingSolver():
       preference = None
     return preference
 
-  def print_results(self, print_preferences=True):
+  def print_results(self, people_to_topics, print_preferences=True, save_as_csv=False):
     if not self.problem_solved:
       raise Exception('Solve the problem first')
 
@@ -129,8 +132,22 @@ class TeachingSolver():
         if print_preferences:
           results[k][presenter_name] += " (" + str(preference) + ")"
     
+    table = []
     for k in range(self.n_blocks):
-      print(f"Block {k+1}")
+      table_block = []
+      table_block.append([f"Teaching Block {k+1}"])
       for presenter, listeners in results[k].items():
-        print(f"{presenter} => {listeners}")
+        table_block.append([f"{presenter} => {listeners}", people_to_topics[presenter]])
+      table.append(table_block)
+
+    for table_block in table:
+      print(table_block[0][0])
+      print(tabulate(table_block[1:], tablefmt="grid_tables"))
       print()
+
+    if save_as_csv:
+      with open("teaching-results.csv", "w") as f:
+        writer = csv.writer(f)
+        for table_block in table:
+          writer.writerows(table_block)
+          writer.writerow([])

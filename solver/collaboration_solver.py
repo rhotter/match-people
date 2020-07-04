@@ -1,4 +1,6 @@
 from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger
+from tabulate import tabulate
+import csv
 
 """
 We solve a linear program with 2 constraints:
@@ -107,23 +109,32 @@ class CollaborationSolver:
       preference = self.weights.index(edge_weight) + 1
     return preference
 
-  def print_results(self, print_preferences=True):
+  def print_results(self, people_to_topics, print_preferences=True, save_as_csv=False):
     if not self.problem_solved:
       raise Exception('Solve the problem first')
 
     talks = {}
     for key in self.x.keys():
       i,j = key
-      if int(value(self.x[i,j])):
+      if int(value(self.x[i,j])) and i != j:
         listener_name = self.index_to_person[i]
         presenter_name = self.index_to_person[j]
         preference = self._get_preference(i,j)
         if presenter_name in talks.keys():
-          talks[presenter_name] += ", " + listener_name
+          talks[presenter_name] += "+ " + listener_name
         else:
           talks[presenter_name] = listener_name
         if print_preferences:
           talks[presenter_name] += " (" + str(preference) + ")"
     
+    table = [["Collaboration Block"]]
     for presenter, listeners in talks.items():
-      print(f"{presenter}: {listeners}")
+      table.append([f"{presenter} + {listeners}", people_to_topics[presenter]])
+    print(table[0][0])
+    print(tabulate(table[1:], tablefmt="grid_tables"))
+    print()
+
+    if save_as_csv:
+      with open("collaboration-results.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerows(table)
