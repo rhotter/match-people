@@ -48,7 +48,7 @@ def extract_person(topic_name):
 		person = person.split(",")[0] # TODO: should combine this in regex above
 		
 		# capitalize first letter
-		person[0] = person[0].upper()
+		person = person[0].upper() + person[1:]
 
 		# remove trailing whitespaces
 		while person[-1] == ' ':
