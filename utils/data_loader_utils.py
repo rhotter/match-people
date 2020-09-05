@@ -41,25 +41,38 @@ def get_raw_spreadsheet_data(spreadsheet_id, spreadsheet_range):
 
 	return values
 
-def _extract_person(topic_name):
+def extract_person(topic_name):
 	person = re.findall(r'\(([^()]*)\)$', topic_name)
 	if person != []:
 		person = person[0]
 		person = person.split(",")[0] # TODO: should combine this in regex above
+		
+		# capitalize first letter
+		person[0] = person[0].upper()
+
+		# remove trailing whitespaces
+		while person[-1] == ' ':
+			person = person[:-1]
 	else:
 		person = ''
 	return person
 
 def _get_out_people(row, cols, people_names):
-	data_cols_vals = [row[i] for i in cols]
+	data_cols_vals = [row[i] for i in cols if i < len(row)]
 	out, topics = [], []
 	for topic_name in data_cols_vals:
-		person_name = _extract_person(topic_name)
+		person_name = extract_person(topic_name)
 		if person_name in out:
 			print(f"{person_name} already selected.")
 		elif person_name in people_names and person_name not in out: # if a valid new person
 			out.append(person_name)
-			processed_topic_name = re.sub('\(.*, ','(', topic_name) # TODO handle the case without comma
+			
+			if "," in re.findall('\((.*?)\)',topic_name)[-1]:
+				processed_topic_name = re.sub('\(.*, ','(', topic_name) # TODO handle the case without comma
+			else:
+				last_parantheses_index = topic_name[::-1].find("(") # reverse string first since find() returns first occurence (we want last occurence)
+				processed_topic_name = topic_name[:-last_parantheses_index-2]
+
 			topics.append(processed_topic_name)
 	return out, topics
 

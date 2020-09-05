@@ -1,5 +1,5 @@
 from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger
-from math import ceil
+from math import floor, ceil
 import csv
 from tabulate import tabulate
 
@@ -60,7 +60,8 @@ class TeachingSolver():
     
     # each block has exactly n/2 presentations
     for k in range(self.n_blocks):
-      self.problem += lpSum(self.x[i,j,k] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces)) == ceil(self.n_people/2)
+      # not sure how this generalizes for len(self.exclude_presenters) > 1
+      self.problem += lpSum(self.x[i,j,k] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces)) >= floor((self.n_people - len(self.exclude_presenters))/2)
   
   def _get_priority_edges_for_listener(self, listener_idx, out_names):
     priority_edge_costs = {}
@@ -113,7 +114,7 @@ class TeachingSolver():
       preference = None
     return preference
 
-  def print_results(self, people_to_topics, print_preferences=True, save_as_csv=False):
+  def print_results(self, people_to_topics, save_as_csv=False):
     if not self.problem_solved:
       raise Exception('Solve the problem first')
 
@@ -129,7 +130,7 @@ class TeachingSolver():
         else:
           results[k][presenter_name] = str(listener_name)
         
-        if print_preferences:
+        if not save_as_csv:
           results[k][presenter_name] += " (" + str(preference) + ")"
     
     table = []
@@ -137,7 +138,8 @@ class TeachingSolver():
       table_block = []
       table_block.append([f"Teaching Block {k+1}"])
       for presenter, listeners in results[k].items():
-        table_block.append([f"{presenter} => {listeners}", people_to_topics[presenter]])
+        topic = people_to_topics[presenter] if presenter in people_to_topics.keys() else ""
+        table_block.append([f"{presenter} => {listeners}", topic])
       table.append(table_block)
 
     for table_block in table:
@@ -146,7 +148,7 @@ class TeachingSolver():
       print()
 
     if save_as_csv:
-      with open("teaching-results.csv", "w") as f:
+      with open("results/teaching-results.csv", "w") as f:
         writer = csv.writer(f)
         for table_block in table:
           writer.writerows(table_block)

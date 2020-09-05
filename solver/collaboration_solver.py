@@ -109,7 +109,7 @@ class CollaborationSolver:
       preference = self.weights.index(edge_weight) + 1
     return preference
 
-  def print_results(self, people_to_topics, print_preferences=True, save_as_csv=False):
+  def print_results(self, people_to_topics, save_as_csv=False):
     if not self.problem_solved:
       raise Exception('Solve the problem first')
 
@@ -119,13 +119,14 @@ class CollaborationSolver:
       if int(value(self.x[i,j])) and i != j:
         listener_name = self.index_to_person[i]
         presenter_name = self.index_to_person[j]
-        preference = self._get_preference(i,j)
+        listener_preference = self._get_preference(i,j)
+        presenter_preference = self._get_preference(j,j)
         if presenter_name in talks.keys():
           talks[presenter_name] += "+ " + listener_name
         else:
           talks[presenter_name] = listener_name
-        if print_preferences:
-          talks[presenter_name] += " (" + str(preference) + ")"
+        if not save_as_csv:
+          talks[presenter_name] += f" ({presenter_preference},{listener_preference})"
     
     table = [["Collaboration Block"]]
     for presenter, listeners in talks.items():
@@ -135,6 +136,6 @@ class CollaborationSolver:
     print()
 
     if save_as_csv:
-      with open("collaboration-results.csv", "w") as f:
+      with open("results/collaboration-results.csv", "w") as f:
         writer = csv.writer(f)
         writer.writerows(table)
