@@ -3,5 +3,5 @@ Form groups of k people that maximizes everyone's preferences subject to schedul
 
 If scheduling constraints are removed (branch `without_schedule`), the problem is formulated as a [minimum-cost flow problem](https://en.wikipedia.org/wiki/Minimum-cost_flow_problem).
 
---
+<hr>
 Experimental things on `devy` branch
