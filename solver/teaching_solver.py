@@ -18,7 +18,7 @@ We solve a linear program with 3 constraints:
 """
 
 class TeachingSolver():
-  def __init__(self, data, n_blocks, weights, low_priority_weight, exclude_presenters=[]):
+  def __init__(self, data, n_blocks, weights, low_priority_weight, exclude_presenters=[], first_time_people=[]):
     self.n_people = len(data)
     self.n_blocks = n_blocks
     self.weights = weights
@@ -33,7 +33,7 @@ class TeachingSolver():
     self.x = {(i,j,k): LpVariable(name=f"x[{i},{j},{k}]", cat=LpInteger, lowBound=0, upBound=1) for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces) for k in range(self.n_blocks)}
 
     self._add_constraints()
-    self._add_objective(data)
+    self._add_objective(data, first_time_people)
   
   def _people_minus(self, *indeces_ignored):
     ignore_set = indeces_ignored[0].union(*indeces_ignored[1:])
@@ -63,12 +63,14 @@ class TeachingSolver():
       # not sure how this generalizes for len(self.exclude_presenters) > 1
       self.problem += lpSum(self.x[i,j,k] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces)) >= floor((self.n_people - len(self.exclude_presenters))/2)
   
-  def _get_priority_edges_for_listener(self, listener_idx, out_names):
+  def _get_priority_edges_for_listener(self, listener_idx, out_names, first_time=False):
+    first_time_multiplier = 2
     priority_edge_costs = {}
     for priority, presenter_name in enumerate(out_names):
       if presenter_name not in self.exclude_presenters:
         presenter_idx = self.person_to_index[presenter_name]
-        priority_edge_costs[listener_idx, presenter_idx] = self.weights[priority]
+        weight = self.weights[priority] if not first_time else self.weights[priority]**first_time_multiplier
+        priority_edge_costs[listener_idx, presenter_idx] = weight
     return priority_edge_costs
 
   def _get_low_priority_edges_for_listener(self, listener_idx, out_names):
@@ -78,17 +80,22 @@ class TeachingSolver():
       low_priority_edge_costs[listener_idx, presenter_idx] = self.low_priority_weight
     return low_priority_edge_costs
 
-  def _get_edge_costs(self, data):
+  def _get_edge_costs(self, data, first_time_people=[]):
     edge_costs = {}
     for listener in data:
+      if listener['name'] in first_time_people:
+        first_time = True
+      else:
+        first_time = False
+      
       listener_idx = self.person_to_index[listener['name']]
-      priority_edge_costs = self._get_priority_edges_for_listener(listener_idx, listener['out'])
+      priority_edge_costs = self._get_priority_edges_for_listener(listener_idx, listener['out'], first_time)
       low_priority_edge_costs = self._get_low_priority_edges_for_listener(listener_idx, listener['out'])
       edge_costs = {**edge_costs, **priority_edge_costs, **low_priority_edge_costs}
     return edge_costs
 
-  def _add_objective(self, data):
-    self.edge_costs = self._get_edge_costs(data)
+  def _add_objective(self, data, first_time_people=[]):
+    self.edge_costs = self._get_edge_costs(data, first_time_people)
     self.problem += lpSum(self.x[i,j,k]*self.edge_costs[i,j] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces) for k in range(self.n_blocks))
   
   def solve(self, print_status=True, print_cost_achieved=True):
