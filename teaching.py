@@ -1,6 +1,5 @@
-from utils import get_data
+from utils import get_data, spreadsheet_id, spreadsheet_range
 from solver import TeachingSolver
-from settings import spreadsheet_id, spreadsheet_range
 
 # get preferences data from a google sheet
 # cols[0] specifies the name column. cols[1], ..., cols[4] specifies the 1st to 4th choices

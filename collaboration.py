@@ -1,6 +1,5 @@
-from utils import get_data
+from utils import get_data, spreadsheet_id, spreadsheet_range
 from solver import CollaborationSolver
-from settings import spreadsheet_id, spreadsheet_range
 
 data, people_to_topics = get_data(spreadsheet_id, spreadsheet_range, cols=[1,6,7,8])
 
