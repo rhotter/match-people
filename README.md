@@ -1,7 +1,7 @@
 # People Matcher
 Form groups of k people that maximizes everyone's preferences subject to scheduling contraints. Solves the problem using [linear programming](https://en.wikipedia.org/wiki/Linear_programming).
 
-Example Google Sheets to collect responses: https://docs.google.com/spreadsheets/d/1OcAamihKvVBg3OZt_p4A6hxoeO1OEtTrZ6iT7CSLqDI
+<a href="https://docs.google.com/spreadsheets/d/1OcAamihKvVBg3OZt_p4A6hxoeO1OEtTrZ6iT7CSLqDI" target="_blank">Example Google Sheets to collect responses</a>
 
 ## Getting Started
 1. Clone this repository: `git clone https://github.com/rhotter/people-matcher.git`
