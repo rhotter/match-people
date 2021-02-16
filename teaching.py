@@ -11,7 +11,8 @@ low_priority_weight = 10 # weight for not getting any of your choices
 
 n_blocks = 2 # currently supports only 2 blocks but passing it into the function anyways...
 
-solver = TeachingSolver(data, n_blocks, weights, low_priority_weight, exclude_presenters=["Jonathan"])
+# add exclude_presenters if there is an odd number of people
+solver = TeachingSolver(data, n_blocks, weights, low_priority_weight, exclude_presenters=["Clay"])
 solver.solve()
 
 solver.print_results(people_to_topics, save_as_csv=False)
