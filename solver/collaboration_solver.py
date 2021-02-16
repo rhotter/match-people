@@ -3,7 +3,7 @@ from tabulate import tabulate
 import csv
 
 """
-We solve a linear program with 2 constraints:
+We solve a linear program with 4 constraints:
 (1) Each person goes to one topic:
     sum_i [j goes to j's topic] = 1
     for each person i
