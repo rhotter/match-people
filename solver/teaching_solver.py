@@ -1,4 +1,4 @@
-from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger
+from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger, PULP_CBC_CMD
 from math import floor, ceil
 import csv
 from tabulate import tabulate
@@ -99,7 +99,7 @@ class TeachingSolver():
     self.problem += lpSum(self.x[i,j,k]*self.edge_costs[i,j] for i in range(self.n_people) for j in self._people_minus({i}, self.exclude_presenters_indeces) for k in range(self.n_blocks))
   
   def solve(self, print_status=True, print_cost_achieved=True):
-    status = self.problem.solve()
+    status = self.problem.solve(PULP_CBC_CMD(msg=0))
     self.problem_solved = True
     print_blank_line = False
     if print_status:

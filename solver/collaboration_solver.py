@@ -1,4 +1,4 @@
-from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger
+from pulp import LpVariable, LpProblem, LpMinimize, lpSum, LpStatus, value, LpInteger, PULP_CBC_CMD
 from tabulate import tabulate
 import csv
 
@@ -88,7 +88,7 @@ class CollaborationSolver:
     self.problem += lpSum(self.x[i,j]*self.edge_costs[i,j] for i in range(self.n_people) for j in range(self.n_people))
   
   def solve(self, print_status=True, print_cost_achieved=True):
-    status = self.problem.solve()
+    status = self.problem.solve(PULP_CBC_CMD(msg=0))
     self.problem_solved = True
     print_blank_line = False
     if print_status:
