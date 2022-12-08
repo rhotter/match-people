@@ -1,6 +1,6 @@
 amply==0.1.4
 cachetools==4.2.1
-certifi==2020.12.5
+certifi==2022.12.7
 chardet==4.0.0
 docutils==0.16
 google-api-core==1.26.0
